@@ -1,0 +1,7 @@
+{
+  "name": "Validador de Nota de Compra",
+  "description": "Ferramenta para conferência de mercadorias, comparando itens da nota fiscal com a contagem física realizada via código de barras.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
