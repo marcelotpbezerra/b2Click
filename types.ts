@@ -1,5 +1,6 @@
 export interface Product {
   barcode: string;
+  systemCode: string;
   name: string;
 }
 
@@ -17,6 +18,7 @@ export interface InventoryLog {
 }
 
 export interface ReportItem {
+  systemCode: string;
   barcode: string;
   name: string;
   invoiceQuantity: number;
@@ -30,6 +32,7 @@ export enum ViewState {
   COLLECT = 'COLLECT',
   INVOICE = 'INVOICE',
   REPORT = 'REPORT',
+  ADMIN = 'ADMIN',
 }
 
 export interface InventorySummary {
@@ -37,4 +40,14 @@ export interface InventorySummary {
   uniqueProductsScanned: number;
   mostScannedProduct: string;
   leastScannedProduct: string;
+}
+
+export type UserRole = 'ADMIN' | 'USER';
+
+export interface User {
+  id: string;
+  username: string;
+  password: string; // In a real app, this should be hashed. For LocalStorage demo, we keep as string.
+  role: UserRole;
+  name: string;
 }

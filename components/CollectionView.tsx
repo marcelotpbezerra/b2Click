@@ -5,7 +5,7 @@ import { PlusIcon, SearchIcon, BarcodeIcon } from './Icons';
 
 const CollectionView: React.FC = () => {
   const [barcode, setBarcode] = useState('');
-  const [quantity, setQuantity] = useState<number | string>(1);
+  const [quantity, setQuantity] = useState<number | string>(''); // Starts empty
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [recentLogs, setRecentLogs] = useState<InventoryLog[]>([]);
@@ -29,8 +29,18 @@ const CollectionView: React.FC = () => {
       return;
     }
     const found = products.find(p => p.barcode === barcode);
-    setCurrentProduct(found || { barcode, name: 'Produto Desconhecido' });
+    setCurrentProduct(found || { barcode, name: 'Produto Desconhecido', systemCode: '-' });
   }, [barcode, products]);
+
+  const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (barcode.trim()) {
+        // Jump to quantity field instead of submitting
+        quantityInputRef.current?.focus();
+      }
+    }
+  };
 
   const handleAdd = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -38,10 +48,12 @@ const CollectionView: React.FC = () => {
     const qtyNum = Number(quantity);
     if (!barcode) {
       setError("Por favor insira um código de barras.");
+      barcodeInputRef.current?.focus();
       return;
     }
-    if (isNaN(qtyNum) || qtyNum <= 0) {
+    if (quantity === '' || isNaN(qtyNum) || qtyNum <= 0) {
       setError("Por favor insira uma quantidade válida.");
+      quantityInputRef.current?.focus();
       return;
     }
 
@@ -57,7 +69,7 @@ const CollectionView: React.FC = () => {
     
     // Reset for next scan
     setBarcode('');
-    setQuantity(1);
+    setQuantity(''); // Reset to empty
     setCurrentProduct(null);
     barcodeInputRef.current?.focus();
   };
@@ -73,7 +85,7 @@ const CollectionView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold">Coleta de Dados</h2>
-              <p className="text-slate-300 text-sm">Escaneie o código ou digite manualmente</p>
+              <p className="text-slate-300 text-sm">Escaneie o código, digite a quantidade e confirme</p>
             </div>
           </div>
         </div>
@@ -102,8 +114,9 @@ const CollectionView: React.FC = () => {
                     type="text"
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
-                    className="pl-10 w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none font-mono text-lg transition-shadow"
-                    placeholder="Escaneie ou digite..."
+                    onKeyDown={handleBarcodeKeyDown}
+                    className="pl-10 w-full bg-white rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none font-mono text-lg transition-shadow"
+                    placeholder="Escaneie aqui..."
                     autoComplete="off"
                   />
                 </div>
@@ -116,7 +129,8 @@ const CollectionView: React.FC = () => {
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none font-mono text-lg text-center transition-shadow"
+                  placeholder="Qtd"
+                  className="w-full bg-white rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-brand-green focus:border-brand-green outline-none font-mono text-lg text-center transition-shadow"
                 />
              </div>
 

@@ -23,8 +23,9 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
         const lines = text.split(/\r\n|\n/);
         const products: Product[] = [];
         
-        // Skip header if it exists
-        const startIndex = lines[0]?.toLowerCase().includes('barcode') || lines[0]?.toLowerCase().includes('code') || lines[0]?.toLowerCase().includes('código') ? 1 : 0;
+        // Skip header if it exists (heuristic check)
+        const firstLine = lines[0]?.toLowerCase() || '';
+        const startIndex = (firstLine.includes('barcode') || firstLine.includes('código') || firstLine.includes('sistema')) ? 1 : 0;
 
         for (let i = startIndex; i < lines.length; i++) {
           const line = lines[i].trim();
@@ -34,18 +35,27 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
           const parts = line.split(/[,;\t|]/);
           const validParts = parts.map(p => p.trim()).filter(p => p !== '');
 
-          if (validParts.length >= 2) {
+          // Expecting: BARCODE | SYSTEM_CODE | NAME
+          if (validParts.length >= 3) {
             const barcode = validParts[0];
-            const name = validParts[1];
+            const systemCode = validParts[1];
+            const name = validParts[2];
             
             if (barcode && name) {
-              products.push({ barcode, name });
+              products.push({ barcode, systemCode, name });
+            }
+          } else if (validParts.length === 2) {
+            // Fallback for old format: BARCODE | NAME (System Code becomes empty)
+            const barcode = validParts[0];
+            const name = validParts[1];
+            if (barcode && name) {
+              products.push({ barcode, systemCode: '-', name });
             }
           }
         }
 
         if (products.length === 0) {
-          setMessage({ type: 'error', text: 'Nenhum produto válido encontrado. Verifique se o arquivo usa separadores como vírgula (,), ponto e vírgula (;) ou barra vertical (|).' });
+          setMessage({ type: 'error', text: 'Nenhum produto válido encontrado. Verifique o formato: Código Barras | Cód. Sistema | Nome' });
           return;
         }
 
@@ -81,7 +91,7 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
       clearProducts();
       setExistingCount(0);
       setMessage({ type: 'success', text: 'Base de dados limpa.' });
-      onDataLoaded();
+      // We don't necessarily navigate away, just show it's empty
     }
   };
 
@@ -91,7 +101,7 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
         <h2 className="text-2xl font-bold text-brand-black">Carregar Base de Produtos</h2>
         <p className="text-slate-500 mt-2">
           Carregue um arquivo CSV ou TXT. <br/>
-          Formatos aceitos: <code className="bg-slate-100 px-1 rounded text-slate-700">Código | Nome</code> ou <code className="bg-slate-100 px-1 rounded text-slate-700">Código, Nome</code>
+          Formato: <code className="bg-slate-100 px-1 rounded text-slate-700">Barras | Cód. Sistema | Nome</code>
         </p>
       </div>
 
