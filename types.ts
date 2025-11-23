@@ -1,3 +1,4 @@
+
 export interface Product {
   barcode: string;
   systemCode: string;
@@ -6,12 +7,16 @@ export interface Product {
 
 export interface InvoiceItem {
   barcode: string;
+  systemCode: string;
   name: string;
   invoiceQuantity: number;
+  conversionFactor?: number; // New: Multiplier (default 1)
 }
 
 export interface InventoryLog {
   id: string;
+  invoiceNumber: string; // Links log to a specific invoice
+  userId: string;        // Links log to specific user
   barcode: string;
   quantity: number;
   timestamp: number;
@@ -22,8 +27,10 @@ export interface ReportItem {
   barcode: string;
   name: string;
   invoiceQuantity: number;
+  conversionFactor: number; // New
+  convertedQuantity: number; // New: invoiceQuantity * conversionFactor
   countedQuantity: number;
-  difference: number; // counted - invoice
+  difference: number; // counted - convertedQuantity
   status: 'MATCH' | 'MISSING' | 'SURPLUS';
 }
 
@@ -33,21 +40,25 @@ export enum ViewState {
   INVOICE = 'INVOICE',
   REPORT = 'REPORT',
   ADMIN = 'ADMIN',
+  // New States for Dashboards
+  DASHBOARD_COLLECTOR = 'DASHBOARD_COLLECTOR',
+  DASHBOARD_VALIDATOR = 'DASHBOARD_VALIDATOR',
 }
 
-export interface InventorySummary {
-  totalItems: number;
-  uniqueProductsScanned: number;
-  mostScannedProduct: string;
-  leastScannedProduct: string;
-}
-
-export type UserRole = 'ADMIN' | 'USER';
+export type UserRole = 'ADMIN' | 'COLLECTOR' | 'VALIDATOR';
 
 export interface User {
   id: string;
   username: string;
-  password: string; // In a real app, this should be hashed. For LocalStorage demo, we keep as string.
+  password: string;
   role: UserRole;
   name: string;
+}
+
+// Helper to list active sessions (unique invoice numbers)
+export interface InventorySessionSummary {
+  invoiceNumber: string;
+  lastActivity: number;
+  totalItemsScanned: number;
+  usersInvolved: string[];
 }

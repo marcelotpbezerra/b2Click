@@ -1,3 +1,4 @@
+
 export const STORAGE_KEYS = {
   PRODUCTS: 'sim_products_db',
   LOGS: 'sim_inventory_logs',
@@ -5,4 +6,4 @@ export const STORAGE_KEYS = {
   USERS: 'sim_users_db',
 };
 
-export const CSV_HEADERS = ['Cód. Sistema', 'Código de Barras', 'Nome do Produto', 'Qtd Nota', 'Qtd Contada', 'Diferença', 'Status'];
+export const CSV_HEADERS = ['Cód. Sistema', 'Código de Barras', 'Nome do Produto', 'Qtd Nota', 'Fator Conv.', 'Qtd Final', 'Qtd Contada', 'Diferença', 'Status'];

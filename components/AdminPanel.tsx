@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
 import { getUsers, saveUser, deleteUser, checkUsernameExists } from '../services/storage';
@@ -17,7 +18,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
     name: '',
     username: '',
     password: '',
-    role: 'USER' as UserRole,
+    role: 'COLLECTOR' as UserRole,
   });
   const [formError, setFormError] = useState('');
 
@@ -36,7 +37,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
       setFormData({
         name: user.name,
         username: user.username,
-        password: user.password,
+        password: user.password, 
         role: user.role,
       });
     } else {
@@ -45,7 +46,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
         name: '',
         username: '',
         password: '',
-        role: 'USER',
+        role: 'COLLECTOR',
       });
     }
     setIsModalOpen(true);
@@ -72,13 +73,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
     e.preventDefault();
     setFormError('');
 
-    // Validation
     if (!formData.name || !formData.username || !formData.password) {
-      setFormError("Todos os campos são obrigatórios.");
+      setFormError("Todos os campos obrigatórios devem ser preenchidos.");
       return;
     }
 
-    // Check username uniqueness
     const isUsernameTaken = checkUsernameExists(formData.username, editingUser?.id);
     if (isUsernameTaken) {
       setFormError("Este nome de usuário já está em uso.");
@@ -90,7 +89,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
       name: formData.name,
       username: formData.username,
       password: formData.password,
-      role: formData.role
+      role: formData.role,
     };
 
     saveUser(userToSave);
@@ -105,7 +104,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
           <h2 className="text-2xl font-bold text-brand-black flex items-center gap-2">
             <SettingsIcon className="w-6 h-6" /> Gestão de Usuários
           </h2>
-          <p className="text-slate-500">Adicione, remova ou altere as permissões dos usuários do sistema.</p>
+          <p className="text-slate-500">Adicione, remova ou altere as permissões de acesso.</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -139,16 +138,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
                 <td className="p-4 text-slate-600 font-mono text-sm">{user.username}</td>
                 <td className="p-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                    user.role === 'ADMIN' ? 'bg-brand-black text-brand-green' : 'bg-slate-100 text-slate-600'
+                    user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 
+                    user.role === 'VALIDATOR' ? 'bg-orange-100 text-orange-800' :
+                    'bg-blue-100 text-blue-800'
                   }`}>
-                    {user.role}
+                    {user.role === 'ADMIN' ? 'Admin' : user.role === 'VALIDATOR' ? 'Conferente' : 'Coletor'}
                   </span>
                 </td>
                 <td className="p-4 flex justify-center gap-2">
                   <button
                     onClick={() => handleOpenModal(user)}
                     className="p-2 text-slate-500 hover:text-brand-black hover:bg-slate-100 rounded-lg transition-colors"
-                    title="Editar / Alterar Senha"
+                    title="Editar"
                   >
                     <LockIcon className="w-4 h-4" />
                   </button>
@@ -171,7 +172,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in max-h-[90vh] overflow-y-auto">
             <div className="bg-brand-black px-6 py-4 border-b border-slate-800">
               <h3 className="text-lg font-bold text-white">
                 {editingUser ? 'Editar Usuário' : 'Novo Usuário'}
@@ -180,7 +181,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo *</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -191,7 +192,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nome de Usuário</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome de Usuário *</label>
                 <input
                   type="text"
                   value={formData.username}
@@ -202,7 +203,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Senha *</label>
                 <input
                   type="text"
                   value={formData.password}
@@ -210,7 +211,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
                   className="w-full bg-white rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-brand-green outline-none font-mono"
                   placeholder="Digite a senha"
                 />
-                {editingUser && <p className="text-xs text-slate-400 mt-1">Edite para alterar a senha atual.</p>}
               </div>
 
               <div>
@@ -220,7 +220,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser }) => {
                   onChange={(e) => setFormData({...formData, role: e.target.value as UserRole})}
                   className="w-full bg-white rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-brand-green outline-none"
                 >
-                  <option value="USER">Usuário Comum</option>
+                  <option value="COLLECTOR">Coletor (Apenas Scan)</option>
+                  <option value="VALIDATOR">Conferente (Audit e XML)</option>
                   <option value="ADMIN">Administrador</option>
                 </select>
               </div>

@@ -32,7 +32,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           <div className="w-20 h-20 bg-white rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
             <AppLogo className="w-16 h-16" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Validador de <span className="text-brand-green">Nota</span></h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Nota <span className="text-brand-green">Certa</span></h1>
           <p className="text-slate-400 mt-2 text-sm">Entre com suas credenciais para acessar</p>
         </div>
 
@@ -88,7 +88,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         </div>
         
         <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
-          <p className="text-xs text-slate-400">Powered by Redesoft &copy; {new Date().getFullYear()}</p>
+          <p className="text-xs text-slate-400">Powered by Marcelo Bezerra &copy; {new Date().getFullYear()}</p>
         </div>
       </div>
     </div>

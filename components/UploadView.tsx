@@ -31,21 +31,23 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
           const line = lines[i].trim();
           if (!line) continue;
           
-          // Support comma, semicolon, tab, or pipe (|)
-          const parts = line.split(/[,;\t|]/);
+          // Support comma, semicolon, or tab (Removed pipe | to strictly follow request)
+          const parts = line.split(/[,;\t]/);
           const validParts = parts.map(p => p.trim()).filter(p => p !== '');
 
-          // Expecting: BARCODE | SYSTEM_CODE | NAME
+          // Expecting: BARCODE, SYSTEM_CODE, NAME
           if (validParts.length >= 3) {
             const barcode = validParts[0];
             const systemCode = validParts[1];
-            const name = validParts[2];
+            // Join the rest back in case name has commas, though simple split is limited. 
+            // ideally use a CSV parser lib, but for this simple logic:
+            const name = validParts.slice(2).join(', '); 
             
             if (barcode && name) {
               products.push({ barcode, systemCode, name });
             }
           } else if (validParts.length === 2) {
-            // Fallback for old format: BARCODE | NAME (System Code becomes empty)
+            // Fallback for old format: BARCODE, NAME (System Code becomes empty)
             const barcode = validParts[0];
             const name = validParts[1];
             if (barcode && name) {
@@ -55,7 +57,7 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
         }
 
         if (products.length === 0) {
-          setMessage({ type: 'error', text: 'Nenhum produto válido encontrado. Verifique o formato: Código Barras | Cód. Sistema | Nome' });
+          setMessage({ type: 'error', text: 'Nenhum produto válido encontrado. Verifique o formato: Código Barras, Cód. Sistema, Nome' });
           return;
         }
 
@@ -100,8 +102,7 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-brand-black">Carregar Base de Produtos</h2>
         <p className="text-slate-500 mt-2">
-          Carregue um arquivo CSV ou TXT. <br/>
-          Formato: <code className="bg-slate-100 px-1 rounded text-slate-700">Barras | Cód. Sistema | Nome</code>
+          Carregue o arquivo com a lista de produtos para validação.
         </p>
       </div>
 
@@ -127,7 +128,7 @@ const UploadView: React.FC<UploadViewProps> = ({ onDataLoaded }) => {
           </div>
           <div>
             <p className="text-lg font-semibold text-slate-700">Clique para carregar ou arraste e solte</p>
-            <p className="text-sm text-slate-500 mt-1">Arquivos CSV ou TXT</p>
+            <p className="text-sm text-slate-500 mt-1">Formato: Código Barras, Cód. Sistema, Nome</p>
           </div>
         </div>
       </div>
